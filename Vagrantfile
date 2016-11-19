@@ -12,13 +12,13 @@ wget –quiet https://storage.googleapis.com/golang/go$GO_VERSION.linux-amd64.ta
 echo 'Unpacking go language'
 sudo tar -C /usr/local -xzf go$GO_VERSION.linux-amd64.tar.gz
 echo 'Setting up correct env. variables'
-echo "export GOPATH=/vagrant/" >> /home/vagrant/.bashrc
+echo "export GOPATH=/home/vagrant/go" >> /home/vagrant/.bashrc
 echo "export PATH=$PATH:$GOPATH/bin:/usr/local/go/bin" >> /home/vagrant/.bashrc
-ln -s /vagrant /home/vagrant/go
-git clone https://github.com/tclaytempleton/kapacitor.git /vagrant/src/github.com/influxdata/kapacitor
+mkdir -p /home/vagrant/go/src/github.com/influxdata
+ln -s /vagrant /home/vagrant/go/src/github.com/influxdata/kapacitor
+export GOPATH=/home/vagrant/go
 export PATH=$PATH:$GOPATH/bin:/usr/local/go/bin
-export GOPATH=/vagrant/
-cd /vagrant/src/github.com/influxdata/kapacitor
+cd /home/vagrant/go/src/github.com/influxdata/kapacitor
 go build ./cmd/kapacitor
 go build ./cmd/kapacitord
 rm /home/vagrant/go1.7.linux-amd64.tar.gz
