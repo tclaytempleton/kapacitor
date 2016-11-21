@@ -33,7 +33,21 @@ mkdir /home/vagrant/var
 
 rm /home/vagrant/go1.7.linux-amd64.tar.gz
 rm anaconda2.sh
+
+pip install protobuf==3.0.0b2
+
+cd /home/vagrant
+wget https://dl.influxdata.com/influxdb/releases/influxdb_1.1.0_amd64.deb
+sudo dpkg -i influxdb_1.1.0_amd64.deb
+rm influxdb_1.1.0_amd64.deb
+
 SCRIPT
+
+$startupScript = <<SCRIPT
+sudo service influxdb start
+
+SCRIPT
+
 
 # Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
 VAGRANTFILE_API_VERSION = "2"
@@ -52,4 +66,5 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   end
   #Calling bootstrap setup
   config.vm.provision "shell", privileged: false, inline: $bootstrapScript
+  config.vm.provision "shell", run: "always", privileged: false, inline: $startupScript
 end

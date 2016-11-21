@@ -18,7 +18,7 @@ def easy_define(module, type="stream"):
 
 
 def define(module, db, script, type="stream"):
-    local('cd /home/vagrant/go/src/github.com/influxdata/kapacitor; go run cmd/kapacitor define {} -type {} -dbrp {} -tick {}'.format(module, type, db, script))
+    local('cd /home/vagrant/go/src/github.com/influxdata/kapacitor; go run cmd/kapacitor/main.go define {} -type {} -dbrp {} -tick {}'.format(module, type, db, script))
 
 
 def log(module, n="10"):
@@ -33,3 +33,7 @@ def init(module):
         local('sed -e "s/\${{module}}/{}/" /vagrant/udf/templates/template.py > /vagrant/udf/agent/examples/{}/{}.py'.format(module.capitalize(), module, module))
         local('sed -e "s/\${{module}}/{}/" /vagrant/udf/templates/template.conf > /vagrant/udf/agent/examples/{}/{}.conf'.format(module, module, module))
         local('sed -e "s/\${{module}}/{}/" /vagrant/udf/templates/template.tick > /vagrant/udf/agent/examples/{}/{}.tick'.format(module, module, module))
+
+
+def list():
+    out = local('cd /home/vagrant/go/src/github.com/influxdata/kapacitor; go run cmd/kapacitor/main.go list tasks')

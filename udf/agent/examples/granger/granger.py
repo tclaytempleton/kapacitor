@@ -86,8 +86,6 @@ class GrangerHandler(object):
         #point.fieldsDouble[self._field]
         # sort the points by field and place the points in correct bins
 
-
-    def end_batch(self, end_req):
     def end_batch(self, end_req):
         pass
         # align points
