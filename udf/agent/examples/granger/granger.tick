@@ -1,0 +1,55 @@
+// This TICKscript monitors the three temperatures for a 3d printing job,
+// and triggers alerts if the temperatures start to experience abnormal behavior.
+
+// Define our desired significance level.
+var alpha = 0.001
+
+
+var stream1 = stream
+    |from()
+        .measurement('stream1')
+var stream2 = stream
+    |from()
+        .measurement('stream2')
+
+var data = stream1
+    |union(stream2)
+        .rename('streams_1_and_2')
+    |window()
+        .period(10m)
+        .every(1m)
+//should streams_1_and_2 be treated as a measurement?
+
+allthedata =
+    |from()
+        .measurement('streams_1_and_2')
+    @granger()
+        .field1('field1')
+        .field2('field2')
+        .size(100)
+    |influxDBOut()
+        .database('grangerTestOut')
+        .measurement('pValues')
+
+
+// Select the temperatures measurements
+//var data = stream
+//    |from()
+//        .measurement('temperatures')
+//    |window()
+//        .period(5m)
+//        .every(5m)
+
+//data
+    //Run our tTest UDF on the hotend temperature
+//    @tTest()
+        // specify the hotend field
+//        .field('hotend')
+        // Keep a 1h rolling window
+//        .size(3600)
+        // pass in the alpha value
+//        .alpha(alpha)
+//    |alert()
+//        .id('hotend')
+//        .crit(lambda: "pvalue" < alpha)
+//        .log('/tmp/kapacitor_udf/hotend_failure.log')
