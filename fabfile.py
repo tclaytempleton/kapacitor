@@ -1,4 +1,5 @@
 from fabric.api import local, cd
+import os
 
 def kapacitor(module):
     #with cd("/home/vagrant/go/src/github.com/influxdata/kapacitor"):
@@ -22,3 +23,13 @@ def define(module, db, script, type="stream"):
 
 def log(module, n="10"):
     local('tail -n {} /home/vagrant/var/{}/kapacitor.log'.format(n, module))
+
+
+def init(module):
+    if os.path.exists('/vagrant/udf/agent/examples/{}'.format(module)):
+        local('echo Module {} already exists. Perhaps delete the module or choose a new name.'.format(module))
+    else:
+        local('mkdir /vagrant/udf/agent/examples/{}'.format(module))
+        local('sed -e "s/\${{module}}/{}/" /vagrant/udf/templates/template.py > /vagrant/udf/agent/examples/{}/{}.py'.format(module.capitalize(), module, module))
+        local('sed -e "s/\${{module}}/{}/" /vagrant/udf/templates/template.conf > /vagrant/udf/agent/examples/{}/{}.conf'.format(module, module, module))
+        local('sed -e "s/\${{module}}/{}/" /vagrant/udf/templates/template.tick > /vagrant/udf/agent/examples/{}/{}.tick'.format(module, module, module))
