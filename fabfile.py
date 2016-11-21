@@ -30,9 +30,9 @@ def init(module):
         local('echo Module {} already exists. Perhaps delete the module or choose a new name.'.format(module))
     else:
         local('mkdir /vagrant/udf/agent/examples/{}'.format(module))
-        local('sed -e "s/\${{module}}/{}/" /vagrant/udf/templates/template.py > /vagrant/udf/agent/examples/{}/{}.py'.format(module.capitalize(), module, module))
-        local('sed -e "s/\${{module}}/{}/" /vagrant/udf/templates/template.conf > /vagrant/udf/agent/examples/{}/{}.conf'.format(module, module, module))
-        local('sed -e "s/\${{module}}/{}/" /vagrant/udf/templates/template.tick > /vagrant/udf/agent/examples/{}/{}.tick'.format(module, module, module))
+        local('sed -e "s/\${{module}}/{}/g" /vagrant/udf/templates/template.py > /vagrant/udf/agent/examples/{}/{}.py'.format(module.capitalize(), module, module))
+        local('sed -e "s/\${{module}}/{}/g" /vagrant/udf/templates/template.conf > /vagrant/udf/agent/examples/{}/{}.conf'.format(module, module, module))
+        local('sed -e "s/\${{module}}/{}/g" /vagrant/udf/templates/template.tick > /vagrant/udf/agent/examples/{}/{}.tick'.format(module, module, module))
 
 
 def list():
