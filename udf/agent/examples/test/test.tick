@@ -1,0 +1,41 @@
+// This TICKscript monitors the three temperatures for a 3d printing job,
+// and triggers alerts if the temperatures start to experience abnormal behavior.
+
+// Define our desired order
+var order = 4
+
+var stream1 = stream
+    |from()
+        .measurement('stream1')
+var stream2 = stream
+    |from()
+        .measurement('stream2')
+
+
+var data = stream1
+    |union(stream2)
+        .rename('streams_1_and_2')
+    |window()
+        .period(20s)
+        .every(2s)
+
+
+// Select the temperatures measurements
+//var data = stream
+//    |from()
+//        .measurement('stream1')
+//    |window()
+//        .period(3s)
+//        .every(1s)
+
+// Do the same for the bed and air temperature.
+data
+    @test()
+        .field1('stream1value')
+        .field2('stream2value')
+        .order(order)
+    |influxDBOut()
+        .database('test')
+        .create()
+        .measurement('test')
+

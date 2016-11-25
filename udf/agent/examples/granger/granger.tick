@@ -16,17 +16,16 @@ var data = stream1
     |union(stream2)
         .rename('streams_1_and_2')
     |window()
-        .period(10m)
-        .every(1m)
-//should streams_1_and_2 be treated as a measurement?
+        .period(15s)
+        .every(5s)
 
 stream
     |from()
         .measurement('streams_1_and_2')
     @granger()
-        .field('field1')
-        .field('field2')
-        .size(100)
+        .field1('stream1value')
+        .field2('stream2value')
+        .order(4)
     |influxDBOut()
         .database('grangerTestOut')
         .measurement('pValues')

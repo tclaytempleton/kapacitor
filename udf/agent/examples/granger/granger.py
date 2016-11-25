@@ -35,33 +35,42 @@ import sys
 class GrangerHandler(object):
     def __init__(self, agent):
         self._agent = agent
-        self._size = 0
-        self._order = 1 #defaults to order = 1
+        #self._size = 0
+        self._order = 1 #defaults #to order = 1
         self._window = []
-        self._field = ''
+        self._field1 = ''
+        self._field2 = ''
+        self._logfile = open("/home/vagrant/var/granger/test_log.log", "a")
 
     def info(self):
+        self._logfile.write("getting info\n")
         response = udf_pb2.Response()
-        response.info.wants = udf_pb2.BATCH
+        response.info.wants = udf_pb2.STREAM
         response.info.provides = udf_pb2.STREAM
         response.info.options['order'].valueTypes.append(udf_pb2.INT)
-        response.info.options['size'].valueTypes.append(udf_pb2.INT)
-        response.info.options['field'].valueTypes.append(udf_pb2.STRING)
+        #response.info.options['size'].valueTypes.append(udf_pb2.INT)
+        response.info.options['field1'].valueTypes.append(udf_pb2.STRING)
+        response.info.options['field2'].valueTypes.append(udf_pb2.STRING)
+        self._logfile.write("returning response\n\n")
         return response
 
     def init(self, init_req):
+        self._logfile.write("initting\n")
         msg = ''
         for opt in init_req.options:
              if opt.name == 'order':
                 self._order = opt.values[0].intValue
-             elif opt.name == 'size':
-                self._size = opt.values[0].intValue
-             elif opt.name == 'field':
-                self._field = opt.values[0].stringValue
+             #elif opt.name == 'size':
+             #   self._size = opt.values[0].intValue
+             elif opt.name == 'field1':
+                self._field1 = opt.values[0].stringValue
+             elif opt.name == 'field2':
+                self._field2 = opt.values[0].stringValue
+        #if self._size <= 1:
+        #    success = False
+        #    msg += ' must supply window size > 1'
 
-        if self._size <= 1:
-            success = False
-            msg += ' must supply window size > 1'
+        success = True
 
         # Do some action to intitialize the statistical code
         # In this case we initialize the historical window
@@ -71,11 +80,12 @@ class GrangerHandler(object):
         response.init.success = success
         response.init.error = msg
         #response.init.error = msg[1:]
-
+        self._logfile.write("returning response\n\n")
         return response
 
 
     def begin_batch(self, begin_req):
+        self._logfile.write("beginning the batch\n\n")
         self._x = []
         self._y = []
 

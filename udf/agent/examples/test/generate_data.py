@@ -24,7 +24,7 @@ def generate_data(N=2048, sigma=0.05):
     return data
 
 
-def stream(data, client, interval=1):
+def stream(data, client, interval=.1):
     """
     For each observations in a series of paired observations, send one observation to one measurement and another to
     another measurement in influxdb.
@@ -34,8 +34,8 @@ def stream(data, client, interval=1):
            interval: interval (in secords) between sending observtions
     :return: None
     """
-    stream1_index = 0
-    stream2_index = 1
+    stream1_index = 1
+    stream2_index = 0
     for item in data:
         point1 = {"value": item[stream1_index], "measurement": "stream1", "field": "stream1value"}
         point2 = {"value": item[stream2_index], "measurement": "stream2", "field": "stream2value"}
@@ -60,7 +60,7 @@ def write_point(point, client):
 
 if __name__ == "__main__":
     client = InfluxDatabaseClient()
-    client.database = "granger"
+    client.database = "test"
     client.database.create()
     data = generate_data()
     stream(data, client)

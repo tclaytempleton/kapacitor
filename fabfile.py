@@ -50,3 +50,5 @@ def list():
 def enable(module):
     local('cd /home/vagrant/go/src/github.com/influxdata/kapacitor; go run cmd/kapacitor/main.go enable {}'.format(module))
 
+def reload(module):
+    local('cd /home/vagrant/go/src/github.com/influxdata/kapacitor; go run cmd/kapacitor/main.go reload {}'.format(module))

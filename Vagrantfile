@@ -41,10 +41,24 @@ wget https://dl.influxdata.com/influxdb/releases/influxdb_1.1.0_amd64.deb
 sudo dpkg -i influxdb_1.1.0_amd64.deb
 rm influxdb_1.1.0_amd64.deb
 
+wget https://grafanarel.s3.amazonaws.com/builds/grafana_3.1.1-1470047149_amd64.deb
+sudo apt-get install -y adduser libfontconfig
+sudo dpkg -i grafana_3.1.1-1470047149_amd64.deb
+rm grafana_3.1.1-1470047149_amd64.deb
+
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9
+sudo add-apt-repository 'deb [arch=amd64,i386] https://cran.rstudio.com/bin/linux/ubuntu xenial/'
+sudo apt-get update
+sudo apt-get install r-base
+sudo mkdir -p /usr/local/lib64/R/library
+sudo R -e 'install.packages("lmtest", "/usr/local/lib64/R/library", repos="http://cran.us.r-project.org")'
+conda install -c r rpy2
+
 SCRIPT
 
 $startupScript = <<SCRIPT
 sudo service influxdb start
+sudo service grafana-server start
 
 SCRIPT
 
@@ -59,6 +73,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # Forwarding port 8080 to local 8080.
   config.vm.network "forwarded_port", guest: 8080, host: 8080
   config.vm.network "forwarded_port", guest: 9092, host: 9092
+  config.vm.network "forwarded_port", guest: 3000, host: 3001
+  config.vm.network "forwarded_port", guest: 8086, host: 8086
   # Setting virtualbox specs
   config.vm.provider "virtualbox" do |vb|
       vb.memory = "1024"
