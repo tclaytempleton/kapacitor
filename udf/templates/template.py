@@ -19,10 +19,19 @@ class ${Module}Handler(object):
         response = udf_pb2.Response()
         response.info.wants = udf_pb2.STREAM
         response.info.provides = udf_pb2.STREAM
+        #response.info.options['some_string'].valueTypes.append(udf_pb2.STRING)
+        #response.info.options['some_int'].valueTypes.append(udf_pb2.INT)
         return response
 
     def init(self, init_req):
-        pass
+        success = True
+        msg = ''
+        for opt in init_req.options:
+            pass
+        response = udf_pb2.Response()
+        response.init.success = success
+        response.init.error = msg
+        return response
 
     def snapshot(self):
         pass
