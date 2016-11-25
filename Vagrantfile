@@ -54,6 +54,11 @@ sudo mkdir -p /usr/local/lib64/R/library
 sudo R -e 'install.packages("lmtest", "/usr/local/lib64/R/library", repos="http://cran.us.r-project.org")'
 conda install -c r rpy2
 
+sudo apt-get install -y ruby
+sudo apt-get install -y ruby-dev
+sudo gem install fpm
+sudo apt-get install -y rpm
+
 SCRIPT
 
 $startupScript = <<SCRIPT
