@@ -5,6 +5,17 @@ def kapacitor(module):
     #with cd("/home/vagrant/go/src/github.com/influxdata/kapacitor"):
     local('cd /home/vagrant/go/src/github.com/influxdata/kapacitor; go run ./cmd/kapacitord/main.go -config udf/agent/examples/{}/{}.conf'.format(module, module))
 
+def spiritenergy():
+    easy_define("spiritenergy")
+    enable("spiritenergy")
+
+def threshold():
+    easy_define("threshold")
+    enable("threshold")
+
+def spirit():
+    easy_define("spirit")
+    enable("spirit")
 
 def easy_define(module, type="stream"):
     '''
@@ -46,7 +57,6 @@ def clean(module):
 def list():
     local('cd /home/vagrant/go/src/github.com/influxdata/kapacitor; go run cmd/kapacitor/main.go list tasks')
 
-
 def enable(module):
     local('cd /home/vagrant/go/src/github.com/influxdata/kapacitor; go run cmd/kapacitor/main.go enable {}'.format(module))
 
@@ -55,3 +65,9 @@ def reload(module):
 
 def build(args):
     local('cd /home/vagrant/go/src/github.com/influxdata/kapacitor; ./build.py {}'.format(args))
+
+def build_environment():
+    if os.path.isdir("/home/vagrant/anaconda2/envs/ims_web"):
+        local('sudo /home/vagrant/anaconda2/bin/conda env remove -n ims_web -y')
+    #local('sudo PATH=$PATH:/usr/pgsql-9.5/bin /home/vagrant/anaconda2/bin/conda env create -f ./environments/ims_web.yml -p /home/vagrant/anaconda2/envs/ims_web')
+    local('/home/vagrant/anaconda2/bin/conda env create -f ./environments/ims_web.yml -p /home/vagrant/anaconda2/envs/ims_web')

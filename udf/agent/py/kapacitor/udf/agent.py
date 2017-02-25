@@ -55,19 +55,19 @@ class Agent(object):
         self._thread = None
         self.handler = handler
         self._write_lock = Lock()
-        self._file = open("/home/vagrant/var/test/agent_log", "a")
+        #self._file = open("/home/vagrant/var/test/agent_log", "a")
 
     # Start the agent.
     # This method returns immediately
     def start(self):
-        self._file.write("starting agent\n")
+        #self._file.write("starting agent\n")
         self._thread = Thread(target=self._read_loop)
         self._thread.start()
 
     # Wait for the Agent to terminate.
     # The Agent will terminate if STDIN is closed or an error occurs
     def wait(self):
-        self._file.write("waiting\n")
+        #self._file.write("waiting\n")
         self._thread.join()
         self._in.close()
         self._out.close()
@@ -85,8 +85,8 @@ class Agent(object):
             # Write message len
             encodeUvarint(self._out, len(data))
             # Write message
-            self._file.write('{}\twriting response {}\n'.format(datetime.datetime.utcnow(), response))
-            self._file.flush()
+            #self._file.write('{}\twriting response {}\n'.format(datetime.datetime.utcnow(), response))
+            #self._file.flush()
             self._out.write(data)
             if flush:
                 self._out.flush()
@@ -106,8 +106,8 @@ class Agent(object):
 
                 # use parsed message
                 msg = request.WhichOneof("message")
-                self._file.write('{}\t{}\n'.format(datetime.datetime.utcnow(), msg))
-                self._file.flush()
+                #self._file.write('{}\t{}\n'.format(datetime.datetime.utcnow(), msg))
+                #self._file.flush()
                 if msg == "info":
                     response = self.handler.info()
                     self.write_response(response, flush=True)
@@ -131,14 +131,14 @@ class Agent(object):
                 elif msg == "end":
                     self.handler.end_batch(request.end)
                 else:
-                    self._file.write("else clause triggered")
-                    self._file.flush()
+                    #self._file.write("else clause triggered")
+                    #self._file.flush()
                     logger.error("received unhandled request %s", msg)
             except EOF:
                 break
             except Exception as e:
-                self._file.write("exception triggered")
-                self._file.flush()
+                #self._file.write("exception triggered")
+                #self._file.flush()
                 traceback.print_exc()
                 error = "error processing request of type %s: %s" % (msg, e)
                 logger.error(error)

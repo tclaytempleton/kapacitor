@@ -1,6 +1,9 @@
 import numpy as np
 from time import sleep
-from clients import InfluxDatabaseClient, Datum, Data, Metadata, Record
+import sys
+sys.path.append("../lib")
+from clients.influx import InfluxDatabaseClient, Datum, Data, Metadata, Record
+
 
 def generate_data(N=2048, sigma=0.05):
     '''In this problem, X[1] drives X[0] for the first half and then independent of X[0] thereafter'''
@@ -24,7 +27,7 @@ def generate_data(N=2048, sigma=0.05):
     return data
 
 
-def stream(data, client, interval=1):
+def stream(data, client, interval=.1):
     """
     For each observations in a series of paired observations, send one observation to one measurement and another to
     another measurement in influxdb.
@@ -34,11 +37,11 @@ def stream(data, client, interval=1):
            interval: interval (in secords) between sending observtions
     :return: None
     """
-    stream1_index = 0
-    stream2_index = 1
+    stream1_index = 1
+    stream2_index = 0
     for item in data:
-        point1 = {"value": item[stream1_index], "measurement": "stream1", "field": "stream1value"}
-        point2 = {"value": item[stream2_index], "measurement": "stream2", "field": "stream2value"}
+        point1 = {"value": item[stream1_index], "measurement": "cause", "field": "causevalue"}
+        point2 = {"value": item[stream2_index], "measurement": "effect", "field": "effectvalue"}
         write_point(point1, client)
         write_point(point2, client)
         sleep(interval)
@@ -59,11 +62,12 @@ def write_point(point, client):
 
 
 if __name__ == "__main__":
-    client = InfluxDatabaseClient()
+    client = InfluxDatabaseClient('129.114.111.79:8086')
     client.database = "granger"
     client.database.create()
     data = generate_data()
-    stream(data, client)
+    while True:
+    	stream(data, client)
 
 
 # (.1 second interval between data points * 2048)/60  = 3.41 minutes to stream all the data

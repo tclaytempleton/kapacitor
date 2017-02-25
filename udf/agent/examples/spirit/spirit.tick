@@ -1,0 +1,25 @@
+// This tickscript pulls data from two influx streams, merges the streams, sends the merged stream to a
+// granger UDF for analysis, and posts the results of the granger analysis to influxdb
+
+// Define our desired order
+var k = 1
+var n = 363
+
+// Define the streams
+var data = stream
+    |from()
+        .measurement('dts')
+    //|window()
+    //    .period(30s)
+    //    .every(30s)
+
+
+//Send to spirit; send output to Influx
+data
+    @spirit()
+        .k(k)
+        .n(n)
+    |influxDBOut()
+        .database('spirit')
+        .create()
+        .measurement('result') //hidden variables

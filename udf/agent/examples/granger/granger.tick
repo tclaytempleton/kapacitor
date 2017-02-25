@@ -1,34 +1,32 @@
-// This TICKscript monitors the three temperatures for a 3d printing job,
-// and triggers alerts if the temperatures start to experience abnormal behavior.
+// This tickscript pulls data from two influx streams, merges the streams, sends the merged stream to a
+// granger UDF for analysis, and posts the results of the granger analysis to influxdb
 
-// Define our desired significance level.
-var alpha = 0.001
-
+// Define our desired order
+var order = 4
 
 var stream1 = stream
     |from()
-        .measurement('stream1')
+        .measurement('cause')
 var stream2 = stream
     |from()
-        .measurement('stream2')
+        .measurement('effect')
 
 var data = stream1
     |union(stream2)
-        .rename('streams_1_and_2')
+        .rename('merged_stream')
     |window()
-        .period(15s)
-        .every(5s)
+        .period(20s)
+        .every(2s)
 
-stream
-    |from()
-        .measurement('streams_1_and_2')
+data
     @granger()
-        .field1('stream1value')
-        .field2('stream2value')
-        .order(4)
+        .field1('causevalue')
+        .field2('effectvalue')
+        .order(order)
     |influxDBOut()
-        .database('grangerTestOut')
-        .measurement('pValues')
+        .database('granger')
+        .create()
+        .measurement('granger')
 
 
 // Select the temperatures measurements

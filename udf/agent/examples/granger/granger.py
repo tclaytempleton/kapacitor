@@ -1,6 +1,18 @@
-from agent import Agent, Handler
-import udf_pb2
+import pandas as pd
+import readline
+import rpy2.robjects.packages as rpackages
+from rpy2.robjects import pandas2ri
+from rpy2.robjects import r
 import sys
+sys.path.append('../lib')
+from udf.agent import Agent, Handler
+import udf.udf_pb2 as udf_pb2
+
+r_base = rpackages.importr('base')
+r('.libPaths("/usr/local/lib64/R/library")')
+lmtest = rpackages.importr('lmtest')
+pandas2ri.activate()
+
 
 # The Agent calls the appropriate methods on the Handler as requests are read off STDIN.
 #
@@ -11,130 +23,66 @@ import sys
 # The Handler is called from a single thread, meaning methods will not be called concurrently.
 #
 # To write Points/Batches back to the Agent/Kapacitor use the Agent.write_response method, which is thread safe.
-
-# The Granger Handler just runs the granger algorithm every time a data point comes in. To do this, it keeps a moving
-# window that is updated each time before the granger algorithm is rerun. The window is either initialized or *waits until
-# there are sufficient data points to run the algorithm*
-# parameters: window size
-#             order
-#             (increment: run granger only at increments of n; is this implementable in kapacitor)
-#
-# private state variables:
-#       window.size
-#
-# update window:
-#     add to window
-#
-#     add granger to the window
-#     if window.size == self.size:
-#          call granger on the window
-#          drop the first-in value from the window
-#
-
-
-class GrangerHandler(object):
+class GrangerHandler(Handler):
     def __init__(self, agent):
         self._agent = agent
-        #self._size = 0
-        self._order = 1 #defaults #to order = 1
-        self._window = []
-        self._field1 = ''
-        self._field2 = ''
-        self._logfile = open("/home/vagrant/var/granger/test_log.log", "a")
+        self._order = 1
 
     def info(self):
-        self._logfile.write("getting info\n")
         response = udf_pb2.Response()
-        response.info.wants = udf_pb2.STREAM
+        response.info.wants = udf_pb2.BATCH
         response.info.provides = udf_pb2.STREAM
-        response.info.options['order'].valueTypes.append(udf_pb2.INT)
-        #response.info.options['size'].valueTypes.append(udf_pb2.INT)
         response.info.options['field1'].valueTypes.append(udf_pb2.STRING)
         response.info.options['field2'].valueTypes.append(udf_pb2.STRING)
-        self._logfile.write("returning response\n\n")
+        response.info.options['order'].valueTypes.append(udf_pb2.INT)
         return response
 
     def init(self, init_req):
-        self._logfile.write("initting\n")
+        success = True
         msg = ''
         for opt in init_req.options:
-             if opt.name == 'order':
+            if opt.name == 'order':
                 self._order = opt.values[0].intValue
-             #elif opt.name == 'size':
-             #   self._size = opt.values[0].intValue
-             elif opt.name == 'field1':
-                self._field1 = opt.values[0].stringValue
-             elif opt.name == 'field2':
-                self._field2 = opt.values[0].stringValue
-        #if self._size <= 1:
-        #    success = False
-        #    msg += ' must supply window size > 1'
-
-        success = True
-
-        # Do some action to intitialize the statistical code
-        # In this case we initialize the historical window
-        # e.g. self._history = MovingStats(size)
 
         response = udf_pb2.Response()
         response.init.success = success
         response.init.error = msg
-        #response.init.error = msg[1:]
-        self._logfile.write("returning response\n\n")
         return response
 
+    def snapshot(self):
+        response = udf_pb2.Response()
+        response.snapshot.snapshot = ''
+        return response
+
+    def restore(self, restore_req):
+        pass
 
     def begin_batch(self, begin_req):
-        self._logfile.write("beginning the batch\n\n")
-        self._x = []
-        self._y = []
-
+        self._x = {}
+        self._y = {}
 
     def point(self, point):
-        with open("whatsthedealwiththepoints.txt", 'a') as of:
-            print point
-        #point.fieldsDouble[self._field]
-        # sort the points by field and place the points in correct bins
+        if "causevalue" in point.fieldsDouble:
+            self._x[point.time] = point.fieldsDouble["causevalue"]
+        if "effectvalue" in point.fieldsDouble:
+            self._y[point.time] = point.fieldsDouble["effectvalue"]
 
-    def end_batch(self, end_req):
-        pass
-        # align points
-        # see ipython notebook
+    def end_batch(self, batch_meta):
+        x, y = self._align()
+        result = lmtest.grangertest(x, y, order=self._order)
+        p_value = (float(result[3][1]))
+        response = udf_pb2.Response()
+        response.point.time = batch_meta.tmax
+        response.point.fieldsDouble["grangervalue"] = p_value
+        self._agent.write_response(response)
 
-        # calculate the Granger score
-        # send the granger score back to Kapacitor (and thence to InfluxDB, per the tick script)
-
-
-def seqGranger(self, params):
-    '''
-    This is the sequential version of the granger test
-    '''
-    order = params['order']
-    t0 = params['t0']
-    t1 = params['t1']
-    dt = params['dt']
-    Fstat = []
-    Prob = []
-
-    tarr = []  # use this array to track analyzed data [maybe should be real timestamp?]
-    cause = self.data[:, 1]
-    effect = self.data[:, 0]
-    ndata = len(self.data[:, 1])
-    while t1 < ndata:
-        # R implementation
-        x = r_base.as_numeric(cause[t0:t1])
-        y = r_base.as_numeric(effect[t0:t1])
-        result = lmtest.grangertest(x, y, order=order)
-        Prob.append(float(result[3][1]))
-        Fstat.append(float(result[2][1]))
-        tarr.append(t1)
-        t0 += dt
-        t1 += dt
-
-    return Prob, tarr
-
-
-# params={'order':4, 't0':0, 't1':200, 'dt':10}
+    def _align(self):
+        x = pd.DataFrame({'x': self._x})
+        y = pd.DataFrame({'y': self._y})
+        x_y = pd.merge(x, y, left_index=True, right_index=True, how="outer") #all points from both streams
+        x_y['y'] = x_y['y'].fillna(method='ffill') # forward-fill the y's to match the x indices
+        x_y = x_y[pd.notnull(x_y['x'])] # delete the rows containing original y's s
+        return x_y['x'], x_y['y']
 
 
 if __name__ == '__main__':

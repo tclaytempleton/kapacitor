@@ -49,8 +49,16 @@ rm grafana_3.1.1-1470047149_amd64.deb
 sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9
 sudo add-apt-repository 'deb [arch=amd64,i386] https://cran.rstudio.com/bin/linux/ubuntu xenial/'
 sudo apt-get update
-sudo apt-get install r-base
+sudo apt-get install r-base-core
+# R configuration
 sudo mkdir -p /usr/local/lib64/R/library
+sudo apt-get install libcurl4-openssl-dev #needed for devtools
+sudo R -e 'install.packages("changepoint", "/usr/local/lib64/R/library", repos="http://cran.us.r-project.org")'
+sudo R -e 'install.packages("bcp", "/usr/local/lib64/R/library", repos="http://cran.us.r-project.org")'
+sudo R -e 'install.packages("xts", "/usr/local/lib64/R/library", repos="http://cran.us.r-project.org")'
+sudo R -e 'install.packages("lmtest", "/usr/local/lib64/R/library", repos="http://cran.us.r-project.org")'
+sudo R -e 'install.packages("devtools", "/usr/local/lib64/R/library", repos="http://cran.us.r-project.org")'
+sudo R -e 'devtools::install_github("twitter/AnomalyDetection")'
 sudo R -e 'install.packages("lmtest", "/usr/local/lib64/R/library", repos="http://cran.us.r-project.org")'
 conda install -c r rpy2
 

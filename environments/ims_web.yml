@@ -1,0 +1,76 @@
+name: ims_web
+channels: !!python/tuple
+- !!python/unicode
+  'defaults'
+dependencies:
+- astropy=1.2.1=np111py27_0
+- backports_abc=0.4=py27_0
+- cairo=1.12.18=6
+- curl=7.45.0=0
+- cycler=0.10.0=py27_0
+- fontconfig=2.11.1=5
+- freetype=2.5.5=0
+- futures=3.0.3=py27_0
+#- gdal=2.0.0=py27_1
+- hdf5=1.8.15.1=2
+- jinja2=2.8=py27_0
+#- libgdal=1.11.2=2
+- libgfortran=3.0.0=1
+- libnetcdf=4.3.3.1=3
+- libpng=1.6.17=0
+- libxml2=2.9.2=0
+- markupsafe=0.23=py27_0
+- matplotlib=1.5.1=np111py27_0
+- mkl=11.3.3=0
+- numpy=1.11.2=py27_0
+- openblas=0.2.14=4
+- openssl=1.0.2f=0
+- pandas=0.19.1=np111py27_0
+- patsy=0.4.1=py27_0
+- pip=8.0.2=py27_0
+- pixman=0.32.6=0
+- py2cairo=1.10.0=py27_2
+- pycairo=1.10.0=py27_0
+- pyparsing=2.0.3=py27_0
+- pyqt=4.11.4=py27_1
+- python=2.7.11=0
+- python-dateutil=2.4.2=py27_0
+- pytz=2016.6.1=py27_0
+- pyyaml=3.11=py27_1
+- qt=4.8.7=1
+- readline=6.2=2
+- requests=2.9.1=py27_0
+- scikit-learn=0.18.1=np111py27_0
+- scipy=0.18.1=np111py27_0
+- setuptools=19.6.2=py27_0
+- simplejson=3.9.0=py27_0
+- singledispatch=3.4.0.3=py27_0
+- sip=4.16.9=py27_0
+- six=1.10.0=py27_0
+- sqlite=3.9.2=0
+- ssl_match_hostname=3.4.0.2=py27_0
+- statsmodels=0.6.1=np111py27_1
+- tk=8.5.18=0
+- tornado=4.3=py27_0
+- wheel=0.29.0=py27_0
+- yaml=0.1.6=0
+- zlib=1.2.8=0
+- pip:
+  - backports-abc==0.4
+  - backports.ssl-match-hostname==3.4.0.2
+  - bokeh==0.11.0
+  - certifi==2015.11.20.1
+  - chaospy
+  - django==1.9.1
+  - django-cors-headers==1.1.0
+  - django-filter==0.13.0
+  - djangorestframework==3.3.3
+  - djangorestframework-gis==0.10.1
+  - markdown==2.6.6
+  - mpld3
+  - protobuf==3.0.0b2
+#  - psycopg2==2.6.1
+  - rpy2==2.8.2
+  - update==0.4.4
+  - git+https://github.com/hildensia/bayesian_changepoint_detection.git
+prefix: /var/www/anaconda2/envs/ims_web

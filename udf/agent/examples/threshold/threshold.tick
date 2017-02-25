@@ -1,0 +1,18 @@
+// This TICKscript monitors the three temperatures for a 3d printing job,
+// and triggers alerts if the temperatures start to experience abnormal behavior.
+
+// Define our desired significance level.
+var alpha = 0.001
+
+// Select the temperatures measurements
+var data = stream
+    |from()
+        .measurement('input')
+
+// Do the same for the bed and air temperature.
+data
+    @threshold()
+    |influxDBOut()
+        .database('threshold')
+        .measurement('event')
+
